@@ -67,7 +67,7 @@ $is_installer_url = (strpos($_SERVER['SCRIPT_NAME'], '/core/install.php') === 0)
  */
 if (empty($settings['config_sync_directory'])) {
   if ($is_installer_url) {
-    $settings['config_sync_directory'] = 'sites/default/files';
+    $settings['config_sync_directory'] = dirname(DRUPAL_ROOT) . '/../config/sync';
   } else {
     $settings['config_sync_directory'] = getenv('DOCROOT') ? '../config' : 'sites/default/config';
   }
