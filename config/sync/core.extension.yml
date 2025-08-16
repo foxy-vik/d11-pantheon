@@ -6,7 +6,10 @@ module:
   dblog: 0
   dynamic_page_cache: 0
   field: 0
+  file: 0
   filter: 0
+  image: 0
+  link: 0
   mysql: 0
   node: 0
   page_cache: 0
