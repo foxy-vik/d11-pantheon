@@ -12,6 +12,10 @@ Composer.
 For more information and detailed installation guides, please visit the
 Integrated Composer Pantheon documentation: https://pantheon.io/docs/integrated-composer
 
+## Deployment
+
+This project uses an automated deployment workflow to Pantheon. For detailed information about the deployment process, please refer to the [deployment documentation](docs/deployment.md).
+
 ## Contributing
 
 Contributions are welcome in the form of GitHub pull requests. However, the
