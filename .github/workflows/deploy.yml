@@ -6,37 +6,18 @@ on:
       - master
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v1
+      - uses: shimataro/ssh-key-action@v2
         with:
-          fetch-depth: 0
-          persist-credentials: false
-
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.7.0
-        with:
-          ssh-private-key: ${{ secrets.PANTHEON_SSH_KEY }}
-
-      - name: Add Pantheon host to known_hosts
+          key: ${{ secrets.PANTHEON_SSH_KEY }}
+          config: ${{ secrets.SSH_CONFIG }}
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+      - name: deployer
         env:
-          PANTHEON_SITE_ID: ${{ secrets.PANTHEON_SITE_ID }}
+          pantheon_repo: '${{ secrets.PANTHEON_REPO }}'
         run: |
-          ssh-keyscan -p 2222 "codeserver.dev.${PANTHEON_SITE_ID}.drush.in" >> ~/.ssh/known_hosts
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
-          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, mysql
-          tools: composer:v2
-
-      - name: Push to Pantheon
-        env:
-          PANTHEON_SITE_ID: ${{ secrets.PANTHEON_SITE_ID }}
-        run: |
-          git remote add pantheon "ssh://codeserver.dev.${PANTHEON_SITE_ID}@codeserver.dev.${PANTHEON_SITE_ID}.drush.in:2222/~/repository.git"
-          echo "Pushing to Pantheon..."
-          git push pantheon master
+          git remote add pantheon $pantheon_repo
+          git push pantheon HEAD:master
