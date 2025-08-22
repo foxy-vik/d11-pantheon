@@ -6,18 +6,26 @@ on:
       - master
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: shimataro/ssh-key-action@v2
-        with:
-          key: ${{ secrets.PANTHEON_SSH_KEY }}
-          config: ${{ secrets.SSH_CONFIG }}
-          known_hosts: ${{ secrets.KNOWN_HOSTS }}
-      - name: deployer
-        env:
-          pantheon_repo: '${{ secrets.PANTHEON_REPO }}'
+      - uses: actions/checkout@v3
+
+      # Install Terminus CLI
+      - name: Install Terminus
         run: |
-          git remote add pantheon $pantheon_repo
+          mkdir -p $HOME/bin
+          curl -L https://github.com/pantheon-systems/terminus/releases/latest/download/terminus.phar -o $HOME/bin/terminus
+          chmod +x $HOME/bin/terminus
+          echo "$HOME/bin" >> $GITHUB_PATH
+
+      # Authenticate with Pantheon
+      - name: Authenticate with Pantheon
+        run: terminus auth:login --machine-token="${{ secrets.PANTHEON_MACHINE_TOKEN }}"
+
+      # Push code to Pantheon
+      - name: Deploy code
+        run: |
+          terminus connection:set viks-site.dev git
+          git remote add pantheon $(terminus connection:info viks-site.dev --field=git_url)
           git push pantheon HEAD:master
