@@ -14,11 +14,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.7.0
-        with:
-          ssh-private-key: ${{ secrets.PANTHEON_SSH_KEY }}
-
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -28,35 +23,8 @@ jobs:
 
       - name: Push to Pantheon
         env:
-          PANTHEON_SITE_ID: ${{ secrets.PANTHEON_SITE_ID }}
+          PANTHEON_SITE_ID: e6e47d2e-63e9-4624-9d30-ae246a9130a7
         run: |
           git remote add pantheon ssh://codeserver.dev.${PANTHEON_SITE_ID}@codeserver.dev.${PANTHEON_SITE_ID}.drush.in:2222/~/repository.git
           echo "Pushing to Pantheon..."
           git push origin master
-          
-      - name: Run post-deployment tasks
-        env:
-          PANTHEON_SITE_ID: ${{ secrets.PANTHEON_SITE_ID }}
-          TERMINUS_TOKEN: ${{ secrets.TERMINUS_TOKEN }}
-        run: |
-          # Install Terminus
-          echo "Installing Terminus..."
-          composer require pantheon-systems/terminus
-          
-          # Authenticate with Terminus
-          echo "Authenticating with Terminus..."
-          ./vendor/bin/terminus auth:login --machine-token=${TERMINUS_TOKEN}
-          
-          # Clear caches
-          echo "Clearing caches..."
-          ./vendor/bin/terminus drush ${PANTHEON_SITE_ID}.dev -- cache:rebuild
-          
-          # Run database updates
-          echo "Running database updates..."
-          ./vendor/bin/terminus drush ${PANTHEON_SITE_ID}.dev -- updatedb -y
-          
-          # Import configuration if needed
-          echo "Importing configuration..."
-          ./vendor/bin/terminus drush ${PANTHEON_SITE_ID}.dev -- config:import -y
-          
-          echo "Deployment completed successfully!"
