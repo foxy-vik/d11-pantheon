@@ -13,6 +13,18 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.PANTHEON_SSH_KEY }}
+
+      - name: Add Pantheon host to known_hosts
+        env:
+          PANTHEON_SITE_ID: ${{ secrets.PANTHEON_SITE_ID }}
+        run: |
+          ssh-keyscan -p 2222 "codeserver.dev.${PANTHEON_SITE_ID}.drush.in" >> ~/.ssh/known_hosts
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -23,8 +35,8 @@ jobs:
 
       - name: Push to Pantheon
         env:
-          PANTHEON_SITE_ID: e6e47d2e-63e9-4624-9d30-ae246a9130a7
+          PANTHEON_SITE_ID: ${{ secrets.PANTHEON_SITE_ID }}
         run: |
-          git remote add pantheon ssh://codeserver.dev.${PANTHEON_SITE_ID}@codeserver.dev.${PANTHEON_SITE_ID}.drush.in:2222/~/repository.git
+          git remote add pantheon "ssh://codeserver.dev.${PANTHEON_SITE_ID}@codeserver.dev.${PANTHEON_SITE_ID}.drush.in:2222/~/repository.git"
           echo "Pushing to Pantheon..."
-          git push origin master
+          git push pantheon master
