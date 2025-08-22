@@ -11,6 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      # Install Terminus CLI
       - name: Setup SSH
         uses: shimataro/ssh-key-action@v2
         with:
@@ -24,10 +25,12 @@ jobs:
           chmod +x $HOME/bin/terminus
           echo "$HOME/bin" >> $GITHUB_PATH
 
+      # Authenticate with Pantheon
       - name: Authenticate with Pantheon
         run: terminus auth:login --machine-token="${{ secrets.PANTHEON_MACHINE_TOKEN }}"
 
-      - name: Push to Pantheon
+      # Push code to Pantheon
+      - name: Deploy code
         run: |
           terminus connection:set viks-site.dev git
           git remote add pantheon $(terminus connection:info viks-site.dev --field=git_url)
