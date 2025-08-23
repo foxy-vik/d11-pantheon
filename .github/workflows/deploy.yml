@@ -16,7 +16,11 @@ jobs:
         uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ secrets.PANTHEON_SSH_KEY }}
-          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+          config: |
+            Host *.drush.in
+              User git
+              StrictHostKeyChecking no
+              Port 2222
 
       - name: Install Terminus
         run: |
