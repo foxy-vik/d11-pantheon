@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      # Install Terminus CLI
+      # Setup SSH with Pantheon key
       - name: Setup SSH
         uses: shimataro/ssh-key-action@v2
         with:
@@ -19,9 +19,15 @@ jobs:
           config: |
             Host *.drush.in
               User git
-              StrictHostKeyChecking no
               Port 2222
 
+      # Add Pantheon host keys (to avoid host key verification errors)
+      - name: Add Pantheon Host Keys
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p 2222 drush.in >> ~/.ssh/known_hosts
+
+      # Install Terminus CLI
       - name: Install Terminus
         run: |
           mkdir -p $HOME/bin
