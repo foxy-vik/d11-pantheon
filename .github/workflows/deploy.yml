@@ -13,7 +13,6 @@ jobs:
       - uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ secrets.PANTHEON_SSH_KEY }}
-          name: github
           config: ${{ secrets.SSH_CONFIG }}
           known_hosts: ${{ secrets.KNOWN_HOSTS }}
       - name: deployer
