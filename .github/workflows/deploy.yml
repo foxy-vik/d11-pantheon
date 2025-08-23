@@ -33,5 +33,5 @@ jobs:
       - name: Deploy code
         run: |
           terminus connection:set viks-site.dev git
-          git remote add pantheon $(terminus connection:info viks-site.dev --field=git_url)
+          git remote add pantheon ssh://codeserver.dev.e6e47d2e-63e9-4624-9d30-ae246a9130a7@codeserver.dev.e6e47d2e-63e9-4624-9d30-ae246a9130a7.drush.in:2222/~/repository.git
           git push pantheon HEAD:master
