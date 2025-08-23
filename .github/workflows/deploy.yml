@@ -6,42 +6,18 @@ on:
       - master
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-
-      # Setup SSH with Pantheon key
-      - name: Setup SSH
-        uses: shimataro/ssh-key-action@v2
+      - uses: actions/checkout@v1
+      - uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ secrets.PANTHEON_SSH_KEY }}
-          config: |
-            Host *.drush.in
-              User git
-              Port 2222
-
-      # Add Pantheon host keys (to avoid host key verification errors)
-      - name: Add Pantheon Host Keys
+          config: ${{ secrets.SSH_CONFIG }}
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+      - name: deployer
+        env:
+          pantheon_repo: '${{ secrets.PANTHEON_REPO }}'
         run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -p 2222 drush.in >> ~/.ssh/known_hosts
-
-      # Install Terminus CLI
-      - name: Install Terminus
-        run: |
-          mkdir -p $HOME/bin
-          curl -L https://github.com/pantheon-systems/terminus/releases/latest/download/terminus.phar -o $HOME/bin/terminus
-          chmod +x $HOME/bin/terminus
-          echo "$HOME/bin" >> $GITHUB_PATH
-
-      # Authenticate with Pantheon
-      - name: Authenticate with Pantheon
-        run: terminus auth:login --machine-token="${{ secrets.PANTHEON_MACHINE_TOKEN }}"
-
-      # Push code to Pantheon
-      - name: Deploy code
-        run: |
-          terminus connection:set viks-site.dev git
-          git remote add pantheon ssh://codeserver.dev.e6e47d2e-63e9-4624-9d30-ae246a9130a7@codeserver.dev.e6e47d2e-63e9-4624-9d30-ae246a9130a7.drush.in:2222/~/repository.git
+          git remote add pantheon $pantheon_repo
           git push pantheon HEAD:master
